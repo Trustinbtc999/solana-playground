@@ -26,6 +26,9 @@ const SshKeyGenerator = () => {
   const [keypair, setKeypair] = useState<PgWeb3.Keypair>();
 
   const publicKey = keypair?.publicKey.toBase58();
+  // `secretKey` is the full 64-byte Solana keypair (32-byte seed + 32-byte
+  // public key), matching the same format used for wallet keypair exports
+  // (see `PgWallet.export`), encoded as base58.
   const privateKey =
     keypair && PgCodec.encodeBinary(keypair.secretKey, "base58");
 
@@ -33,6 +36,8 @@ const SshKeyGenerator = () => {
     if (error || !name) return;
     setKeypair(PgWeb3.Keypair.generate());
   };
+
+  const canGenerate = !error && !!name;
 
   const handleDownload = () => {
     if (!privateKey) return;
@@ -50,8 +55,10 @@ const SshKeyGenerator = () => {
 
       <MainSection>
         <Desc>
-          Generate a new key pair entirely in your browser. The keys are never
-          sent to any server.
+          Generate a new Ed25519 key pair entirely in your browser. The keys are
+          never sent to any server. The generated public/private key pair uses
+          the same encoding as Solana keypairs (base58), rather than the OpenSSH
+          PEM format.
         </Desc>
 
         <InputWrapper>
@@ -80,7 +87,11 @@ const SshKeyGenerator = () => {
         </InputWrapper>
 
         <GenerateButtonWrapper>
-          <Button kind="primary" onClick={handleGenerate} disabled={!!error}>
+          <Button
+            kind="primary"
+            onClick={handleGenerate}
+            disabled={!canGenerate}
+          >
             Generate key pair
           </Button>
         </GenerateButtonWrapper>
