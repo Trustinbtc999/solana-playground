@@ -150,7 +150,33 @@ jobs:
         run: yarn test-types
 
       - name: Run unit tests
-        run: yarn test-unit
+        run: yarn test-coverage
 
       - name: Build
         run: yarn build
+
+      - name: Upload coverage artifact
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report-typescript
+          path: client/coverage/cobertura-coverage.xml
+
+  upload-coverage-typescript:
+    name: Upload TypeScript coverage
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      code-quality: write
+    steps:
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: coverage-report-typescript
+      - uses: actions/upload-code-coverage@v1
+        with:
+          file: cobertura-coverage.xml
+          language: TypeScript
+          label: code-coverage-agent
