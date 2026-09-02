@@ -276,6 +276,12 @@ module.exports = {
     },
   },
 
+  jest: {
+    configure: {
+      coverageReporters: ["cobertura"],
+    },
+  },
+
   devServer: (devServerConfig) => {
     devServerConfig.headers = {
       ...devServerConfig.headers,
@@ -303,3 +309,4 @@ const defineFromPublicDir = (dirName, cb) => {
 
   return JSON.stringify(cb(fs.readdirSync(publicPath), publicPath));
 };
+

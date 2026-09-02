@@ -32,3 +32,6 @@ server/programs/*
 # WASM
 **/www
 .vercel
+
+# Coverage
+client/coverage/
